@@ -39,7 +39,7 @@ type customDNSProviderConfig struct {
 }
 
 func (s *solver) Name() string {
-	return "my-custom-solver"
+	return "resource"
 }
 
 func (s *solver) Present(ch *v1alpha1.ChallengeRequest) error {

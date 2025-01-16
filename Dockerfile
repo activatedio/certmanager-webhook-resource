@@ -7,12 +7,12 @@ WORKDIR /workspace
 COPY go.mod .
 COPY go.sum .
 
+ARG GIT_OAUTH_TOKEN
+RUN git config --global url.https://gh-pat:${GIT_OAUTH_TOKEN}@github.com/activatedio.insteadof https://github.com/activatedio
+
 RUN go mod download
 
 FROM build_deps AS build
-
-ARG GIT_OAUTH_TOKEN
-RUN git config --global url.https://gh-pat:${GIT_OAUTH_TOKEN}@github.com/activatedio.insteadof https://github.com/activatedio
 
 COPY . .
 

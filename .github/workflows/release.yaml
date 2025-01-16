@@ -49,6 +49,7 @@ jobs:
         platforms: linux/amd64
         cache-to: type=gha,mode=max
         provenance: false
+        build-args: GIT_OAUTH_TOKEN=${{ secrets.GH_BUILD_PAT }}
 
     - name: Package and push helm chart
       run: |
@@ -98,6 +99,7 @@ jobs:
         platforms: linux/arm64
         cache-to: type=gha,mode=max
         provenance: false
+        build-args: GIT_OAUTH_TOKEN=${{ secrets.GH_BUILD_PAT }}
 
   create-manifests:
 

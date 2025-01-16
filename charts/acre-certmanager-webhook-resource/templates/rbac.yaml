@@ -89,3 +89,38 @@ subjects:
     kind: ServiceAccount
     name: {{ .Values.certManager.serviceAccountName }}
     namespace: {{ .Values.certManager.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "acre-certmanager-webhook-resource.fullname" . }}
+  labels:
+    app: {{ include "acre-certmanager-webhook-resource.name" . }}
+    chart: {{ include "acre-certmanager-webhook-resource.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+rules:
+  - apiGroups:
+      - bluebird.acresecurity.com
+    resources:
+      - '*'
+    verbs:
+      - '*'
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "acre-certmanager-webhook-resource.fullname" . }}
+  labels:
+    app: {{ include "acre-certmanager-webhook-resource.name" . }}
+    chart: {{ include "acre-certmanager-webhook-resource.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "acre-certmanager-webhook-resource.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "acre-certmanager-webhook-resource.fullname" . }}
+  namespace: {{ .Release.Namespace }}

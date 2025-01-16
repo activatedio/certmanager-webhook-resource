@@ -1,32 +1,31 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	"context"
+	bluebirdv1 "github.com/activatedio/acre-bluebird-operator/pkg/apis/bluebird.acresecurity.com/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
+	"strings"
+	"sync"
 
+	bluebirdclientv1 "github.com/activatedio/acre-bluebird-operator/pkg/generated/clientset/versioned"
 	"github.com/cert-manager/cert-manager/pkg/acme/webhook/apis/acme/v1alpha1"
 	"github.com/cert-manager/cert-manager/pkg/acme/webhook/cmd"
+
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 const GroupName = "certmanager.bluebird.acresecurity.com"
 
 func main() {
-	fmt.Println("Running in MAIN!!!")
 	cmd.RunWebhookServer(GroupName,
 		&solver{},
 	)
 }
 
 type solver struct {
-	// If a Kubernetes 'clientset' is needed, you must:
-	// 1. uncomment the additional `client` field in this structure below
-	// 2. uncomment the "k8s.io/client-go/kubernetes" import at the top of the file
-	// 3. uncomment the relevant code in the Initialize method below
-	// 4. ensure your webhook's service account has the required RBAC role
-	//    assigned to it for interacting with the Kubernetes APIs you need.
-	//client kubernetes.Clientset
+	lock   sync.Mutex
+	client *bluebirdclientv1.Clientset
 }
 
 type customDNSProviderConfig struct {
@@ -43,50 +42,78 @@ func (s *solver) Name() string {
 	return "resource"
 }
 
+func (s *solver) makeName(ch *v1alpha1.ChallengeRequest) string {
+	return strings.ReplaceAll(strings.ReplaceAll(ch.DNSName, "*", "wild"), ".", "_")
+}
+
 func (s *solver) Present(ch *v1alpha1.ChallengeRequest) error {
-	fmt.Println("In present *******")
-	cfg, err := loadConfig(ch.Config)
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	ctx := context.Background()
+
+	name := s.makeName(ch)
+
+	api := s.client.BluebirdV1().BluebirdDNSChallenges(ch.ResourceNamespace)
+
+	c, err := api.Get(ctx, name, metav1.GetOptions{})
+
+	spec := bluebirdv1.BluebirdDNSChallengeSpec{
+		DNSName:      ch.DNSName,
+		Key:          ch.Key,
+		ResolvedFQDN: ch.ResolvedFQDN,
+		ResolvedZone: ch.ResolvedZone,
+	}
+
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+
+			c = &bluebirdv1.BluebirdDNSChallenge{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      name,
+					Namespace: ch.ResourceNamespace,
+				},
+				Spec: spec,
+			}
+
+			_, err = api.Create(ctx, c, metav1.CreateOptions{})
+			return err
+
+		} else {
+			return err
+		}
+	} else {
+		c.Spec = spec
+		_, err = api.Update(ctx, c, metav1.UpdateOptions{})
+		return err
+	}
+
+}
+
+func (s *solver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
+
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	cts := context.Background()
+
+	name := s.makeName(ch)
+
+	api := s.client.BluebirdV1().BluebirdDNSChallenges(ch.ResourceNamespace)
+
+	return api.Delete(cts, name, metav1.DeleteOptions{})
+}
+
+func (s *solver) Initialize(kubeClientConfig *rest.Config, stopCh <-chan struct{}) error {
+
+	cs, err := bluebirdclientv1.NewForConfig(kubeClientConfig)
+
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Decoded configuration %v\n", cfg)
-
-	fmt.Printf("Request %v\n", ch)
+	s.client = cs
 
 	return nil
-}
-
-func (s *solver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
-	// TODO: add code that deletes a record from the DNS provider's console
-	return nil
-}
-
-func (s *solver) Initialize(kubeClientConfig *rest.Config, stopCh <-chan struct{}) error {
-	fmt.Println("Initialize !!! *******")
-	///// UNCOMMENT THE BELOW CODE TO MAKE A KUBERNETES CLIENTSET AVAILABLE TO
-	///// YOUR CUSTOM DNS PROVIDER
-
-	//cl, err := kubernetes.NewForConfig(kubeClientConfig)
-	//if err != nil {
-	//	return err
-	//}
-	//
-	//s.client = cl
-
-	///// END OF CODE TO MAKE KUBERNETES CLIENTSET AVAILABLE
-	return nil
-}
-
-func loadConfig(cfgJSON *extapi.JSON) (customDNSProviderConfig, error) {
-	cfg := customDNSProviderConfig{}
-	// handle the 'base case' where no configuration has been provided
-	if cfgJSON == nil {
-		return cfg, nil
-	}
-	if err := json.Unmarshal(cfgJSON.Raw, &cfg); err != nil {
-		return cfg, fmt.Errorf("error decoding solver config: %v", err)
-	}
-
-	return cfg, nil
 }

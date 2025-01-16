@@ -11,6 +11,9 @@ RUN go mod download
 
 FROM build_deps AS build
 
+ARG GIT_OAUTH_TOKEN
+RUN git config --global url.https://gh-pat:${GIT_OAUTH_TOKEN}@github.com/activatedio.insteadof https://github.com/activatedio
+
 COPY . .
 
 RUN CGO_ENABLED=0 go build -o webhook -ldflags '-w -extldflags "-static"' .

@@ -65,7 +65,7 @@ metadata:
     heritage: {{ .Release.Service }}
 rules:
   - apiGroups:
-      - bluebird.acresecurity.com
+      - certmanager.bluebird.acresecurity.com
     resources:
       - '*'
     verbs:

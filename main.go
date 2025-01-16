@@ -19,6 +19,7 @@ import (
 const GroupName = "certmanager.bluebird.acresecurity.com"
 
 func main() {
+	logrus.SetLevel(logrus.InfoLevel)
 	cmd.RunWebhookServer(GroupName,
 		&solver{},
 	)

@@ -5,6 +5,7 @@ go 1.22.0
 require (
 	github.com/activatedio/acre-bluebird-operator v0.32.0
 	github.com/cert-manager/cert-manager v1.16.2
+	github.com/sirupsen/logrus v1.9.3
 	k8s.io/apimachinery v0.31.1
 	k8s.io/client-go v0.31.1
 )

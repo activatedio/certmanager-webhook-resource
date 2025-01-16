@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	bluebirdv1 "github.com/activatedio/acre-bluebird-operator/pkg/apis/bluebird.acresecurity.com/v1"
+	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 	"strings"
@@ -51,6 +52,8 @@ func (s *solver) Present(ch *v1alpha1.ChallengeRequest) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
+	logrus.Infof("processng dns request %v", ch)
+
 	ctx := context.Background()
 
 	name := s.makeName(ch)
@@ -77,6 +80,7 @@ func (s *solver) Present(ch *v1alpha1.ChallengeRequest) error {
 				Spec: spec,
 			}
 
+			logrus.Infof("creating dns challenge %s", name)
 			_, err = api.Create(ctx, c, metav1.CreateOptions{})
 			return err
 
@@ -85,6 +89,7 @@ func (s *solver) Present(ch *v1alpha1.ChallengeRequest) error {
 		}
 	} else {
 		c.Spec = spec
+		logrus.Infof("updating dns challenge %s", name)
 		_, err = api.Update(ctx, c, metav1.UpdateOptions{})
 		return err
 	}
@@ -102,6 +107,7 @@ func (s *solver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 
 	api := s.client.BluebirdV1().BluebirdDNSChallenges(ch.ResourceNamespace)
 
+	logrus.Infof("removing dns challenge %s", name)
 	return api.Delete(cts, name, metav1.DeleteOptions{})
 }
 

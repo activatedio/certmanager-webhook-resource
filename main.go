@@ -13,6 +13,7 @@ import (
 const GroupName = "certmanager.bluebird.acresecurity.com"
 
 func main() {
+	fmt.Println("Running in MAIN!!!")
 	cmd.RunWebhookServer(GroupName,
 		&solver{},
 	)
@@ -43,14 +44,15 @@ func (s *solver) Name() string {
 }
 
 func (s *solver) Present(ch *v1alpha1.ChallengeRequest) error {
+	fmt.Println("In present *******")
 	cfg, err := loadConfig(ch.Config)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("Decoded configuration %v", cfg)
+	fmt.Printf("Decoded configuration %v\n", cfg)
 
-	fmt.Printf("Request %v", ch)
+	fmt.Printf("Request %v\n", ch)
 
 	return nil
 }
@@ -61,6 +63,7 @@ func (s *solver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 }
 
 func (s *solver) Initialize(kubeClientConfig *rest.Config, stopCh <-chan struct{}) error {
+	fmt.Println("Initialize !!! *******")
 	///// UNCOMMENT THE BELOW CODE TO MAKE A KUBERNETES CLIENTSET AVAILABLE TO
 	///// YOUR CUSTOM DNS PROVIDER
 

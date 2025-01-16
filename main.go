@@ -10,7 +10,7 @@ import (
 	"github.com/cert-manager/cert-manager/pkg/acme/webhook/cmd"
 )
 
-const GroupName = "bluebird.acresecurity.com"
+const GroupName = "certmanager.bluebird.acresecurity.com"
 
 func main() {
 	cmd.RunWebhookServer(GroupName,

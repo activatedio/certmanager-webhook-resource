@@ -1,7 +1,7 @@
 
 imagePullSecrets: []
 
-groupName: bluebird.acresecurity.com
+groupName: certmanager.bluebird.acresecurity.com
 
 certManager:
   namespace: cert-manager

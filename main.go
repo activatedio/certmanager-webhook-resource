@@ -45,7 +45,7 @@ func (s *solver) Name() string {
 }
 
 func (s *solver) makeName(ch *v1alpha1.ChallengeRequest) string {
-	return strings.ReplaceAll(strings.ReplaceAll(ch.DNSName, "*", "wild"), ".", "_")
+	return strings.ReplaceAll(strings.ReplaceAll(ch.DNSName, "*", "wild"), ".", "-")
 }
 
 func (s *solver) Present(ch *v1alpha1.ChallengeRequest) error {

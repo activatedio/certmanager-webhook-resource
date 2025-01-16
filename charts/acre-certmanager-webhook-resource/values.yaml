@@ -8,7 +8,7 @@ certManager:
   serviceAccountName: cert-manager
 
 image:
-  repository: github.com/activatedio/acre-certmanager-webhook-resource
+  repository: ghcr.io/activatedio/acre-certmanager-webhook-resource
   tag: v0.0.0
   pullPolicy: IfNotPresent
 

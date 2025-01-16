@@ -1,26 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "example-webhook.fullname" . }}
+  name: {{ include "acre-certmanager-webhook-resource.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app: {{ include "example-webhook.name" . }}
-    chart: {{ include "example-webhook.chart" . }}
+    app: {{ include "acre-certmanager-webhook-resource.name" . }}
+    chart: {{ include "acre-certmanager-webhook-resource.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "example-webhook.name" . }}
+      app: {{ include "acre-certmanager-webhook-resource.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ include "example-webhook.name" . }}
+        app: {{ include "acre-certmanager-webhook-resource.name" . }}
         release: {{ .Release.Name }}
     spec:
-      serviceAccountName: {{ include "example-webhook.fullname" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "acre-certmanager-webhook-resource.fullname" . }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -28,9 +32,6 @@ spec:
           args:
             - --tls-cert-file=/tls/tls.crt
             - --tls-private-key-file=/tls/tls.key
-          env:
-            - name: GROUP_NAME
-              value: {{ .Values.groupName | quote }}
           ports:
             - name: https
               containerPort: 443
@@ -54,7 +55,7 @@ spec:
       volumes:
         - name: certs
           secret:
-            secretName: {{ include "example-webhook.servingCertificate" . }}
+            secretName: {{ include "acre-certmanager-webhook-resource.servingCertificate" . }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

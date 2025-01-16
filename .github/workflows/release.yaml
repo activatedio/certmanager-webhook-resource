@@ -1,0 +1,153 @@
+name: Release
+
+on:
+  push:
+    tags: [ 'v*.*.*' ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  deploy-amd64:
+    runs-on: custom-ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+
+    - name: Log into registry ${{ env.REGISTRY }}
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-amd64
+
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        platforms: linux/amd64
+        cache-to: type=gha,mode=max
+        provenance: false
+
+    - name: Package and push helm chart
+      run: |
+        VERSION=${GITHUB_REF_NAME#v}
+        REPOSITORY=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+        sed -i "s/v0\.0\.0/v${VERSION}/g" ./charts/acre-certmanager-webhook-resource/values.yaml
+        helm package ./charts/acre-certmanager-webhook-resource --version $VERSION
+        helm push ./acre-certmanager-webhook-resource-$VERSION.tgz oci://$REPOSITORY
+  
+  deploy-arm64:
+    runs-on: custom-ubuntu-24.04-arm
+    permissions:
+      contents: read
+      packages: write
+      id-token: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@f95db51fddba0c2d1ec667646a06c2ce06100226 # v3.0.0
+
+    - name: Log into registry ${{ env.REGISTRY }}
+      if: github.event_name != 'pull_request'
+      uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Extract Docker metadata
+      id: meta
+      uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-arm64
+
+    - name: Build and push Docker image
+      id: build-and-push
+      uses: docker/build-push-action@0565240e2d4ab88bba5387d719585280857ece09 # v5.0.0
+      with:
+        context: .
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        platforms: linux/arm64
+        cache-to: type=gha,mode=max
+        provenance: false
+
+  create-manifests:
+
+    runs-on: [ custom-ubuntu-24.04 ]
+    needs: [deploy-amd64, deploy-arm64]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract Docker metadata
+        id: meta-arm64
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          flavor: |
+            latest=false
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-arm64
+
+      - name: Extract Docker metadata
+        id: meta-amd64
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          flavor: |
+            latest=false
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-amd64
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
+        with:
+          flavor: |
+            latest=false
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Create manifest and push
+        run: |
+          docker manifest create \
+            ${{ steps.meta.outputs.tags }} \
+            --amend ${{ steps.meta-arm64.outputs.tags }} \
+            --amend ${{ steps.meta-amd64.outputs.tags }} && \
+          docker manifest push ${{ steps.meta.outputs.tags }}
+
+

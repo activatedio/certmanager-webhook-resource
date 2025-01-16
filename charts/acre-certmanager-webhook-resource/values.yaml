@@ -1,0 +1,28 @@
+
+imagePullSecrets: []
+
+groupName: bluebird.acresecurity.com
+
+certManager:
+  namespace: cert-manager
+  serviceAccountName: cert-manager
+
+image:
+  repository: github.com/activatedio/acre-certmanager-webhook-resource
+  tag: v0.0.0
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 443
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

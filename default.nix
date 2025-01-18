@@ -1,7 +1,7 @@
 with import <nixpkgs> {};
 
 stdenv.mkDerivation {
-  name = "acre-webhook";
+  name = "certmanager-webhook-resource";
   buildInputs = with pkgs; [
     go
     gnumake

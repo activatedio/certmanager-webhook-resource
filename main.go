@@ -1,19 +1,13 @@
 package main
 
 import (
-	"context"
-	bluebirdv1 "github.com/activatedio/acre-bluebird-operator/pkg/apis/bluebird.acresecurity.com/v1"
 	"github.com/sirupsen/logrus"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 	"strings"
 	"sync"
 
-	bluebirdclientv1 "github.com/activatedio/acre-bluebird-operator/pkg/generated/clientset/versioned"
 	"github.com/cert-manager/cert-manager/pkg/acme/webhook/apis/acme/v1alpha1"
 	"github.com/cert-manager/cert-manager/pkg/acme/webhook/cmd"
-
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 )
 
 const GroupName = "certmanager.bluebird.acresecurity.com"
@@ -26,8 +20,7 @@ func main() {
 }
 
 type solver struct {
-	lock   sync.Mutex
-	client *bluebirdclientv1.Clientset
+	lock sync.Mutex
 }
 
 type customDNSProviderConfig struct {
@@ -53,48 +46,52 @@ func (s *solver) Present(ch *v1alpha1.ChallengeRequest) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	logrus.Infof("processng dns request %v", ch)
+	return nil
 
-	ctx := context.Background()
+	/*
+		logrus.Infof("processng dns request %v", ch)
 
-	name := s.makeName(ch)
+		ctx := context.Background()
 
-	api := s.client.BluebirdV1().BluebirdDNSChallenges(ch.ResourceNamespace)
+		name := s.makeName(ch)
 
-	c, err := api.Get(ctx, name, metav1.GetOptions{})
+		api := s.client.BluebirdV1().BluebirdDNSChallenges(ch.ResourceNamespace)
 
-	spec := bluebirdv1.BluebirdDNSChallengeSpec{
-		DNSName:      ch.DNSName,
-		Key:          ch.Key,
-		ResolvedFQDN: ch.ResolvedFQDN,
-		ResolvedZone: ch.ResolvedZone,
-	}
+		c, err := api.Get(ctx, name, metav1.GetOptions{})
 
-	if err != nil {
-		if apierrors.IsNotFound(err) {
+		spec := bluebirdv1.BluebirdDNSChallengeSpec{
+			DNSName:      ch.DNSName,
+			Key:          ch.Key,
+			ResolvedFQDN: ch.ResolvedFQDN,
+			ResolvedZone: ch.ResolvedZone,
+		}
 
-			c = &bluebirdv1.BluebirdDNSChallenge{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      name,
-					Namespace: ch.ResourceNamespace,
-				},
-				Spec: spec,
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+
+				c = &bluebirdv1.BluebirdDNSChallenge{
+					ObjectMeta: metav1.ObjectMeta{
+						Name:      name,
+						Namespace: ch.ResourceNamespace,
+					},
+					Spec: spec,
+				}
+
+				logrus.Infof("creating dns challenge %s", name)
+				_, err = api.Create(ctx, c, metav1.CreateOptions{})
+				return err
+
+			} else {
+				return err
 			}
-
-			logrus.Infof("creating dns challenge %s", name)
-			_, err = api.Create(ctx, c, metav1.CreateOptions{})
-			return err
-
 		} else {
+			c.Spec = spec
+			logrus.Infof("updating dns challenge %s", name)
+			_, err = api.Update(ctx, c, metav1.UpdateOptions{})
 			return err
 		}
-	} else {
-		c.Spec = spec
-		logrus.Infof("updating dns challenge %s", name)
-		_, err = api.Update(ctx, c, metav1.UpdateOptions{})
-		return err
-	}
 
+	*/
 }
 
 func (s *solver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
@@ -102,25 +99,33 @@ func (s *solver) CleanUp(ch *v1alpha1.ChallengeRequest) error {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 
-	cts := context.Background()
+	return nil
 
-	name := s.makeName(ch)
+	/*
+		cts := context.Background()
 
-	api := s.client.BluebirdV1().BluebirdDNSChallenges(ch.ResourceNamespace)
+		name := s.makeName(ch)
 
-	logrus.Infof("removing dns challenge %s", name)
-	return api.Delete(cts, name, metav1.DeleteOptions{})
+		api := s.client.BluebirdV1().BluebirdDNSChallenges(ch.ResourceNamespace)
+
+		logrus.Infof("removing dns challenge %s", name)
+		return api.Delete(cts, name, metav1.DeleteOptions{})
+
+	*/
 }
 
 func (s *solver) Initialize(kubeClientConfig *rest.Config, stopCh <-chan struct{}) error {
 
-	cs, err := bluebirdclientv1.NewForConfig(kubeClientConfig)
+	/*
+		cs, err := bluebirdclientv1.NewForConfig(kubeClientConfig)
 
-	if err != nil {
-		return err
-	}
+		if err != nil {
+			return err
+		}
 
-	s.client = cs
+		s.client = cs
+
+	*/
 
 	return nil
 }

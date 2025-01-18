@@ -4,17 +4,17 @@ kind: APIService
 metadata:
   name: v1alpha1.certmanager.bluebird.acresecurity.com
   labels:
-    app: {{ include "acre-certmanager-webhook-resource.name" . }}
-    chart: {{ include "acre-certmanager-webhook-resource.chart" . }}
+    app: {{ include "certmanager-webhook-resource.name" . }}
+    chart: {{ include "certmanager-webhook-resource.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
   annotations:
-    cert-manager.io/inject-ca-from: "{{ .Release.Namespace }}/{{ include "acre-certmanager-webhook-resource.servingCertificate" . }}"
+    cert-manager.io/inject-ca-from: "{{ .Release.Namespace }}/{{ include "certmanager-webhook-resource.servingCertificate" . }}"
 spec:
   group: certmanager.bluebird.acresecurity.com
   groupPriorityMinimum: 1000
   versionPriority: 15
   service:
-    name: {{ include "acre-certmanager-webhook-resource.fullname" . }}
+    name: {{ include "certmanager-webhook-resource.fullname" . }}
     namespace: {{ .Release.Namespace }}
   version: v1alpha1

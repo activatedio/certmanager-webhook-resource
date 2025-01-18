@@ -1,30 +1,30 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "acre-certmanager-webhook-resource.fullname" . }}
+  name: {{ include "certmanager-webhook-resource.fullname" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels:
-    app: {{ include "acre-certmanager-webhook-resource.name" . }}
-    chart: {{ include "acre-certmanager-webhook-resource.chart" . }}
+    app: {{ include "certmanager-webhook-resource.name" . }}
+    chart: {{ include "certmanager-webhook-resource.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ include "acre-certmanager-webhook-resource.name" . }}
+      app: {{ include "certmanager-webhook-resource.name" . }}
       release: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app: {{ include "acre-certmanager-webhook-resource.name" . }}
+        app: {{ include "certmanager-webhook-resource.name" . }}
         release: {{ .Release.Name }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "acre-certmanager-webhook-resource.fullname" . }}
+      serviceAccountName: {{ include "certmanager-webhook-resource.fullname" . }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -55,7 +55,7 @@ spec:
       volumes:
         - name: certs
           secret:
-            secretName: {{ include "acre-certmanager-webhook-resource.servingCertificate" . }}
+            secretName: {{ include "certmanager-webhook-resource.servingCertificate" . }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}

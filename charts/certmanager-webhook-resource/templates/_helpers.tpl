@@ -2,7 +2,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "acre-certmanager-webhook-resource.name" -}}
+{{- define "certmanager-webhook-resource.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
@@ -11,7 +11,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "acre-certmanager-webhook-resource.fullname" -}}
+{{- define "certmanager-webhook-resource.fullname" -}}
 {{- if .Values.fullnameOverride -}}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
@@ -27,22 +27,22 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "acre-certmanager-webhook-resource.chart" -}}
+{{- define "certmanager-webhook-resource.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "acre-certmanager-webhook-resource.selfSignedIssuer" -}}
-{{ printf "%s-selfsign" (include "acre-certmanager-webhook-resource.fullname" .) }}
+{{- define "certmanager-webhook-resource.selfSignedIssuer" -}}
+{{ printf "%s-selfsign" (include "certmanager-webhook-resource.fullname" .) }}
 {{- end -}}
 
-{{- define "acre-certmanager-webhook-resource.rootCAIssuer" -}}
-{{ printf "%s-ca" (include "acre-certmanager-webhook-resource.fullname" .) }}
+{{- define "certmanager-webhook-resource.rootCAIssuer" -}}
+{{ printf "%s-ca" (include "certmanager-webhook-resource.fullname" .) }}
 {{- end -}}
 
-{{- define "acre-certmanager-webhook-resource.rootCACertificate" -}}
-{{ printf "%s-ca" (include "acre-certmanager-webhook-resource.fullname" .) }}
+{{- define "certmanager-webhook-resource.rootCACertificate" -}}
+{{ printf "%s-ca" (include "certmanager-webhook-resource.fullname" .) }}
 {{- end -}}
 
-{{- define "acre-certmanager-webhook-resource.servingCertificate" -}}
-{{ printf "%s-webhook-tls" (include "acre-certmanager-webhook-resource.fullname" .) }}
+{{- define "certmanager-webhook-resource.servingCertificate" -}}
+{{ printf "%s-webhook-tls" (include "certmanager-webhook-resource.fullname" .) }}
 {{- end -}}

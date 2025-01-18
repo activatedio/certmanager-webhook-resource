@@ -1,0 +1,4 @@
+package acre_bluebird_operator
+
+//go:generate go run pkg/codegen/cleanup/main.go
+//go:generate go run pkg/codegen/main.go

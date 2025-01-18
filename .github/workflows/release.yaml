@@ -49,15 +49,16 @@ jobs:
         platforms: linux/amd64
         cache-to: type=gha,mode=max
         provenance: false
-        build-args: GIT_OAUTH_TOKEN=${{ secrets.GH_BUILD_PAT }}
 
     - name: Package and push helm chart
       run: |
         VERSION=${GITHUB_REF_NAME#v}
         REPOSITORY=ghcr.io/$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
-        sed -i "s/v0\.0\.0/v${VERSION}/g" ./charts/acre-certmanager-webhook-resource/values.yaml
-        helm package ./charts/acre-certmanager-webhook-resource --version $VERSION
-        helm push ./acre-certmanager-webhook-resource-$VERSION.tgz oci://$REPOSITORY
+        sed -i "s/v0\.0\.0/v${VERSION}/g" ./charts/certmanager-webhook-resource/values.yaml
+        helm package ./charts/certmanager-webhook-resource --version $VERSION
+        helm push ./certmanager-webhook-resource-$VERSION.tgz oci://$REPOSITORY
+        helm package ./charts/acre-bluebird-operator-crds --version $VERSION
+        helm push ./acre-bluebird-operator-crds-$VERSION.tgz oci://$REPOSITORY
   
   deploy-arm64:
     runs-on: custom-ubuntu-24.04-arm
@@ -99,7 +100,6 @@ jobs:
         platforms: linux/arm64
         cache-to: type=gha,mode=max
         provenance: false
-        build-args: GIT_OAUTH_TOKEN=${{ secrets.GH_BUILD_PAT }}
 
   create-manifests:
 

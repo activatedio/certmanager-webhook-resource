@@ -1,5 +1,5 @@
 apiVersion: v2
-name: certmanager-webhook-resources-crds
+name: certmanager-webhook-resource-crds
 description: Cert Manager Webhook Resources CustomResourceDefinitions
 version: 0.0.0
 appVersion: 0.0.0

@@ -65,7 +65,7 @@ metadata:
     heritage: {{ .Release.Service }}
 rules:
   - apiGroups:
-      - certmanager.bluebird.acresecurity.com
+      - resource.cert-manager.activated.io
     resources:
       - '*'
     verbs:
@@ -101,7 +101,7 @@ metadata:
     heritage: {{ .Release.Service }}
 rules:
   - apiGroups:
-      - bluebird.acresecurity.com
+      - resource.cert-manager.activated.io
     resources:
       - '*'
     verbs:

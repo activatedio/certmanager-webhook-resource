@@ -2,7 +2,7 @@
 apiVersion: apiregistration.k8s.io/v1
 kind: APIService
 metadata:
-  name: v1alpha1.certmanager.bluebird.acresecurity.com
+  name: v1alpha1.resource.cert-manager.activated.io
   labels:
     app: {{ include "certmanager-webhook-resource.name" . }}
     chart: {{ include "certmanager-webhook-resource.chart" . }}
@@ -11,7 +11,7 @@ metadata:
   annotations:
     cert-manager.io/inject-ca-from: "{{ .Release.Namespace }}/{{ include "certmanager-webhook-resource.servingCertificate" . }}"
 spec:
-  group: certmanager.bluebird.acresecurity.com
+  group: resource.cert-manager.activated.io
   groupPriorityMinimum: 1000
   versionPriority: 15
   service:

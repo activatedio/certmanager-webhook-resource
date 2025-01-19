@@ -40,7 +40,7 @@ type customDNSProviderConfig struct {
 }
 
 func (s *solver) Name() string {
-	return "resource"
+	return "acme-dns-records"
 }
 
 func (s *solver) makeName(ch *v1alpha1.ChallengeRequest) string {

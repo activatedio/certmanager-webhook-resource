@@ -4,8 +4,6 @@ crds:
 
 imagePullSecrets: []
 
-groupName: certmanager.resource.cert-manager.activated.io
-
 certManager:
   namespace: cert-manager
   serviceAccountName: cert-manager

@@ -15,7 +15,7 @@ import (
 	"github.com/cert-manager/cert-manager/pkg/acme/webhook/cmd"
 )
 
-const GroupName = "certmanager.resource.cert-manager.activated.io"
+const GroupName = "resource.cert-manager.activated.io"
 
 func main() {
 	logrus.SetLevel(logrus.InfoLevel)

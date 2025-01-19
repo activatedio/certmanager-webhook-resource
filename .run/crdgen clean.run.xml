@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="crdgen clean" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="acre-certmanager-webhook-resource" />
+    <working_directory value="$PROJECT_DIR$" />
+    <kind value="PACKAGE" />
+    <package value="github.com/activatedio/certmanager-webhook-resource/hack/crdgen" />
+    <directory value="$PROJECT_DIR$" />
+    <filePath value="$PROJECT_DIR$/hack/crdgen/main.go" />
+    <method v="2" />
+  </configuration>
+</component>

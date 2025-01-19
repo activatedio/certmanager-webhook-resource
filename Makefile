@@ -25,7 +25,8 @@ generate:
 	go generate gen.go
 	go install golang.org/x/tools/cmd/goimports
 	${GOROOT}/bin/goimports -w ./pkg
-	go generate ./hack/crdgen.go > charts/certmanager-webhook-resource-crds/templates/crds.yaml
+	go run ./hack/crdgen --mode clean > crds/crds.yaml
+	go run ./hack/crdgen --mode helm --chart-name certmanager-webhook-resource > charts/certmanager-webhook-resource/templates/crds.yaml
 
 .PHONY: test
 test:

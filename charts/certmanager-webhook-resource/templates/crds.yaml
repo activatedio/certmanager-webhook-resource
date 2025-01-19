@@ -1,0 +1,64 @@
+# START CRD {{- if .Values.crds.enabled }}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  # START ANNOTATIONS {{- if .Values.crds.keep }}
+  annotations:
+    helm.sh/resource-policy: keep
+  # END ANNOTATIONS {{- end }}
+
+  labels:
+    app: '{{ template "certmanager-webhook-resource.name" . }}'
+    # Generated Labels {{- include "labels" . | nindent 4 }}
+
+    app.kubernetes.io/instance: '{{ .Release.Name }}'
+    app.kubernetes.io/name: '{{ template "certmanager-webhook-resource.name" . }}'
+  name: acmednschallenges.resource.cert-manager.activated.io
+spec:
+  group: resource.cert-manager.activated.io
+  names:
+    kind: ACMEDNSChallenge
+    plural: acmednschallenges
+    singular: acmednschallenge
+  preserveUnknownFields: false
+  scope: Namespaced
+  versions:
+    - additionalPrinterColumns:
+        - jsonPath: .spec.dnsName
+          name: DNSName
+          type: string
+        - jsonPath: .spec.key
+          name: Key
+          type: string
+        - jsonPath: .spec.resolvedFQDN
+          name: ResolvedFQDN
+          type: string
+      name: v1
+      schema:
+        openAPIV3Schema:
+          properties:
+            spec:
+              properties:
+                dnsName:
+                  nullable: true
+                  type: string
+                key:
+                  nullable: true
+                  type: string
+                resolvedFQDN:
+                  nullable: true
+                  type: string
+                resolvedZone:
+                  nullable: true
+                  type: string
+              type: object
+            status:
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
+
+# END CRD {{- end }}

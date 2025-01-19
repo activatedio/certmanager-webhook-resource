@@ -1,0 +1,51 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: acmednschallenges.resource.cert-manager.activated.io
+spec:
+  group: resource.cert-manager.activated.io
+  names:
+    kind: ACMEDNSChallenge
+    plural: acmednschallenges
+    singular: acmednschallenge
+  preserveUnknownFields: false
+  scope: Namespaced
+  versions:
+    - additionalPrinterColumns:
+        - jsonPath: .spec.dnsName
+          name: DNSName
+          type: string
+        - jsonPath: .spec.key
+          name: Key
+          type: string
+        - jsonPath: .spec.resolvedFQDN
+          name: ResolvedFQDN
+          type: string
+      name: v1
+      schema:
+        openAPIV3Schema:
+          properties:
+            spec:
+              properties:
+                dnsName:
+                  nullable: true
+                  type: string
+                key:
+                  nullable: true
+                  type: string
+                resolvedFQDN:
+                  nullable: true
+                  type: string
+                resolvedZone:
+                  nullable: true
+                  type: string
+              type: object
+            status:
+              type: object
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}
+

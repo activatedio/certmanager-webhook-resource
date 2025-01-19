@@ -57,8 +57,6 @@ jobs:
         sed -i "s/v0\.0\.0/v${VERSION}/g" ./charts/certmanager-webhook-resource/values.yaml
         helm package ./charts/certmanager-webhook-resource --version $VERSION
         helm push ./certmanager-webhook-resource-$VERSION.tgz oci://$REPOSITORY
-        helm package ./charts/certmanager-webhook-resource-crds --version $VERSION
-        helm push ./certmanager-webhook-resource-crds-$VERSION.tgz oci://$REPOSITORY
   
   deploy-arm64:
     runs-on: custom-ubuntu-24.04-arm
